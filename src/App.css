@@ -1,0 +1,39 @@
+:root {
+  --brand: #004d99;
+  --bg: #fdfdfd;
+  --text: #222;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app-wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(1.75rem, 2.5vw + 1rem, 2.5rem);
+  color: var(--brand);
+}
+
+p {
+  margin: 0 0 1.5rem;
+}
+
+#mf-60125f9c-8124-4525-91b0-ea4be6c36021 {
+  width: 100%;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.08));
+}
