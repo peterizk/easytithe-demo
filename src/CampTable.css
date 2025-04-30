@@ -1,0 +1,27 @@
+/* CampTable.css */
+.camp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  
+  .camp-table th,
+  .camp-table td {
+    border: 1px solid var(--table-border);
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+  }
+  
+  .camp-table thead {
+    background: #f0f6ff;
+  }
+  
+  .register-link {
+    color: var(--brand);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .register-link:hover {
+    text-decoration: underline;
+  }
+  
