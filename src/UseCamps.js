@@ -12,12 +12,18 @@ export function useSheet(csvUrl) {
         const lines = csv.trim().split("\n");
         const headers = lines[0].split(",");
         const data = lines.slice(1).map((line) => {
-          const cells = line.split(",");
+        const cells = line.split(",");
+
+        const unescape = (s = "") => {
+        if (s.startsWith('"') && s.endsWith('"')) s = s.slice(1, -1);
+          return s.replace(/""/g, '"').trim();   // ""  → "
+          };
           return headers.reduce((obj, h, i) => {
-            obj[h] = cells[i] ?? "";
+            obj[h] = unescape(cells[i]);
             return obj;
           }, {});
         });
+
         setColumns(headers);
         setRows(data);
       })
