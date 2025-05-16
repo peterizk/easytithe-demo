@@ -1,24 +1,45 @@
-import { useSheet } from "./UseCamps";    // new name
+/* src/CampTable.jsx  – JSON version
+   Renders a table of events; each cell is analysed at runtime:
+   • https://….(png|jpg|gif|webp|svg)  →  <img>
+   • any https URL                     →  <a>
+   • raw HTML (starts < ends >)        →  dangerouslySetInnerHTML
+   • otherwise                         →  plain text                           */
+
+import React from "react";
+import { useSheet } from "./UseCamps";   // ← path to your new hook
 import "./CampTable.css";
 
-function renderCell(value) {
-  const isImg = /^https?:\/\/.+\.(png|jpe?g|gif|webp)$/i.test(value);
-  const isUrl = /^https?:\/\//i.test(value);
+/** Decide how to render the cell value */
+function renderCell(value = "") {
+  const v = value.trim();
 
-  if (isImg) return <img src={value} alt="" style={{ maxWidth: 120 }} />;
-  if (isUrl) return <a href={value}>{value}</a>;
+  // image extensions
+  if (/^https?:\/\/.+\.(png|jpe?g|gif|webp|svg)$/i.test(v)) {
+    return <img src={v} alt="" style={{ maxWidth: 150 }} />;
+  }
 
-  // naïve rich-text allowance (bold, italics, <br>, etc.)
-  if (/<[a-z][\s\S]*>/i.test(value))
-    return <span dangerouslySetInnerHTML={{ __html: value }} />;
+  // generic URL
+  if (/^https?:\/\//i.test(v)) {
+    return (
+      <a href={v} target="_blank" rel="noopener noreferrer">
+        {v}
+      </a>
+    );
+  }
 
-  return value; // plain text
+  // naïve “looks like HTML” check
+  if (v.startsWith("<") && v.endsWith(">")) {
+    /* eslint-disable react/no-danger */
+    return <span dangerouslySetInnerHTML={{ __html: v }} />;
+    /* eslint-enable react/no-danger */
+  }
+
+  return v;                                   // plain text fallback
 }
 
 export default function CampTable() {
-  const { columns, rows } = useSheet(
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLd6Nq6pDMIaXbMq6cEmnRMLa1gK0ar02_zVUVhkQy1enSDvEQQdFN-lRs9PAXIrHAPR5Pf2d4ZP6-/pub?output=csv"
-  );
+  // JSON hook – no CSV URL argument needed
+  const { columns, rows } = useSheet();
 
   if (!rows.length) return <p>Loading camp list…</p>;
 

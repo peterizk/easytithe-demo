@@ -4,8 +4,8 @@ import "./App.css";
 export default function App() {
   return (
     <div className="app-wrapper">
-      <h1>2025 Camp Events</h1>
-      <p>Select a camp below to register.</p>
+      <h1>Events</h1>
+      <p>Select below to register.</p>
       <CampTable />
     </div>
   );

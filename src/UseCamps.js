@@ -1,34 +1,34 @@
+/* UseCamps.js   – now fetches Google‑Sheets JSON instead of CSV   */
 import { useEffect, useState } from "react";
+import fetch from "cross-fetch";
 
-export function useSheet(csvUrl) {
-  const [columns, setColumns] = useState([]);   // ["Camp", "Dates", …]
-  const [rows, setRows] = useState([]);         // [{ Camp:"x", Dates:"y", … }]
+const SHEET_ID   = import.meta.env.VITE_GOOGLE_SHEET_ID;
+const SHEET_NAME = import.meta.env.VITE_GOOGLE_SHEET_NAME;
+const API_KEY    = import.meta.env.VITE_GOOGLE_API_KEY;
+
+const RANGE = `${encodeURIComponent(SHEET_NAME)}!A1:Z1000`;
+const URL   = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+
+export function useSheet() {
+  const [columns, setColumns] = useState([]);
+  const [rows,    setRows]    = useState([]);
 
   useEffect(() => {
-    const url = csvUrl + "&cb=" + Date.now();   // cache-buster
-    fetch(url, { cache: "no-store" })
-      .then((r) => r.text())
-      .then((csv) => {
-        const lines = csv.trim().split("\n");
-        const headers = lines[0].split(",");
-        const data = lines.slice(1).map((line) => {
-        const cells = line.split(",");
+    fetch(URL, { cache: "no-store" })
+      .then((r) => r.json())
+      .then(({ values }) => {
+        if (!values || values.length === 0) return;
+        const [header, ...body] = values;
 
-        const unescape = (s = "") => {
-        if (s.startsWith('"') && s.endsWith('"')) s = s.slice(1, -1);
-          return s.replace(/""/g, '"').trim();   // ""  → "
-          };
-          return headers.reduce((obj, h, i) => {
-            obj[h] = unescape(cells[i]);
-            return obj;
-          }, {});
-        });
+        const objects = body.map((line) =>
+          header.reduce((obj, h, i) => ({ ...obj, [h]: line[i] || "" }), {})
+        );
 
-        setColumns(headers);
-        setRows(data);
+        setColumns(header);
+        setRows(objects);
       })
       .catch(console.error);
-  }, [csvUrl]);
+  }, []);
 
   return { columns, rows };
 }
