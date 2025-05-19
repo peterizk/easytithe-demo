@@ -39,11 +39,7 @@ function renderCell(value = "") {
 
 export default function CampTable() {
   // JSON hook – no CSV URL argument needed
-  const { events } = useSheet();
-  const rows = events || [];
-  const columns = rows.length
-   ? Object.keys(rows[0])               // take keys from the first row
-   : [];
+  const { columns, rows } = useSheet();
 
   if (!rows.length) return <p>Loading camp list…</p>;
 
