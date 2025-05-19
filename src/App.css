@@ -1,36 +1,77 @@
+/* src/styles/app.css */
+
+/* ── Variables ───────────────────────────────────────────────────────────── */
 :root {
-  --brand: #004d99;
-  --bg: #fdfdfd;
-  --text: #222;
-  --table-border: #d9d9d9;
+  --brand-color:      rgb(217, 22, 22);   /* from stmarkchicago.org */
+  --bg-color:         #fdfdfd;
+  --text-color:       #222;
+  --table-border:     #d9d9d9;
+}
+
+/* ── Global resets & body ───────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  font-family: "Open Sans", arial, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
 }
 
+/* ── App wrapper ───────────────────────────────────────────────────────── */
 .app-wrapper {
   max-width: 900px;
   margin: 0 auto;
   padding: 2rem 1.25rem;
 }
 
-h1 {
-  margin: 0 0 1.25rem;
-  color: var(--brand);
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.app-header {
+  text-align: center;
+  padding: 1rem 0;       /* fixed: two values, vertical 1rem, horizontal 0 */
+  background-color: #fff;
 }
 
-p {
-  margin: 0 0 1.75rem;
+.app-title {
+  font-family: "Playfair Display";
+  font-size: 20px;
+  font-weight: 400;
+  text-transform: none;
+  color: var(--text-color);
+  letter-spacing: normal;
+  line-height: normal;
+  text-decoration: none;
 }
 
+.app-title:hover,
+.app-title:focus {
+  text-decoration: underline;
+}
+
+/* ── Page Heading ───────────────────────────────────────────────────────── */
+.page-heading {
+  text-align: center;
+  font-size: 2.5rem;
+  margin: 1.5rem 0;
+  color: var(--text-color);
+}
+
+/* ── Content Blocks ─────────────────────────────────────────────────────── */
+.top-block,
+.bottom-block {
+  max-width: 800px;
+  margin: 1rem auto;
+  line-height: 1.6;
+}
+
+/* ── Table Styles ───────────────────────────────────────────────────────── */
 .camp-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95rem;
+  max-width: 800px;
 }
 
 .camp-table th,
@@ -44,11 +85,13 @@ p {
   background: #f0f6ff;
 }
 
+/* ── Register Link ──────────────────────────────────────────────────────── */
 .register-link {
-  color: var(--brand);
+  color: var(--brand-color);
   font-weight: 600;
   text-decoration: none;
 }
+
 .register-link:hover {
   text-decoration: underline;
 }

@@ -1,34 +1,60 @@
 /* UseCamps.js   – now fetches Google‑Sheets JSON instead of CSV   */
-import { useEffect, useState } from "react";
+// src/hooks/useCamps.js
+
+import { useState, useEffect } from 'react';
 import fetch from "cross-fetch";
 
-const SHEET_ID   = import.meta.env.VITE_GOOGLE_SHEET_ID;
-const SHEET_NAME = import.meta.env.VITE_GOOGLE_SHEET_NAME;
-const API_KEY    = import.meta.env.VITE_GOOGLE_API_KEY;
+const SHEET_ID = import.meta.env.VITE_GOOGLE_SHEET_ID;
+const API_KEY  = import.meta.env.VITE_GOOGLE_API_KEY;
+const BASE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values`;
 
-const RANGE = `${encodeURIComponent(SHEET_NAME)}!A1:Z1000`;
-const URL   = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+/** General helper to fetch any sheet range */
+async function fetchSheet(range) {
+  const res = await fetch(`${BASE_URL}/${range}?key=${API_KEY}`);
+  if (!res.ok) throw new Error(`${range} fetch failed: ${res.statusText}`);
+  const { values } = await res.json();
+  return values;
+}
 
+/** Custom hook that returns both events and settings */
 export function useSheet() {
-  const [columns, setColumns] = useState([]);
-  const [rows,    setRows]    = useState([]);
+  const [events,  setEvents]  = useState([]);
+  const [settings, setSettings] = useState(null);
+  const [error,   setError]   = useState(null);
 
   useEffect(() => {
-    fetch(URL, { cache: "no-store" })
-      .then((r) => r.json())
-      .then(({ values }) => {
-        if (!values || values.length === 0) return;
-        const [header, ...body] = values;
+    let mounted = true;
 
-        const objects = body.map((line) =>
-          header.reduce((obj, h, i) => ({ ...obj, [h]: line[i] || "" }), {})
+    async function load() {
+      try {
+        // 1) Load Events data
+        const evValues = await fetchSheet('Events!A1:Z1000');
+        const [evHeader, ...evRows] = evValues;
+        const evObjects = evRows.map(row =>
+          evHeader.reduce((obj, col, i) => ({ ...obj, [col]: row[i] || '' }), {})
         );
 
-        setColumns(header);
-        setRows(objects);
-      })
-      .catch(console.error);
+        // 2) Load Settings data
+        const stValues = await fetchSheet('Settings!A1:D2');
+        const [stHeader, stRow] = stValues;
+        const stObject = stHeader.reduce((obj, col, i) => ({
+          ...obj,
+          [col]: stRow[i] || ''
+        }), {});
+
+        if (mounted) {
+          setEvents(evObjects);
+          setSettings(stObject);
+        }
+      } catch (err) {
+        console.error('Data load error:', err);
+        if (mounted) setError(err);
+      }
+    }
+
+    load();
+    return () => { mounted = false; };
   }, []);
 
-  return { columns, rows };
+  return { events, settings, error };
 }
