@@ -1,44 +1,93 @@
 import React from "react";
 import "./App.css";
-import CampTable from "./CampTable";
-import { useSheet } from "./UseCamps";
-import HTMLBlock from "./components/HTMLBlock";
+
 import Header from "./components/Header";
+import CampTable from "./CampTable";
+import HTMLBlock from "./components/HTMLBlock";
+import { useSheet } from "./UseCamps";
+import usePageFiles from "./hooks/usePageFiles";
 
-export default function App() {
-  // Pull in your data
-  const { events, settings, error } = useSheet();
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Link,
+  useParams,
+} from "react-router-dom";
 
-  // Error state
-  if (error) {
-    return <p>Error loading data: {error.message}</p>;
-  }
+import DOMPurify from "dompurify";
 
-  // Loading state
-  if (!settings) {
-    return <p>Loading…</p>;
-  }
+/* ────────────────────────────────
+   Helper component for dropped pages
+   ──────────────────────────────── */
+function FilePage({ pages }) {
+  const { slug } = useParams();
+  const page = pages.find((p) => p.slug === slug);
+  if (!page) return <h1>404 Not Found</h1>;
 
-  // Render once data is ready
   return (
-    <>
+    <iframe
+      src={page.url}
+      title={page.label}
+      className="page-iframe"
+      style={{ width: "100%", height: "80vh", border: "none" }}
+    />
+  );
+}
+
+/* ────────────────────────────────
+   App root
+   ──────────────────────────────── */
+export default function App() {
+  // Sheet‑driven settings & error (CampTable fetches rows itself)
+  const { settings, error } = useSheet();
+  const pages = usePageFiles();      // dynamic list from /static-pages
+
+  if (error) return <p>Error loading data: {error.message}</p>;
+  if (!settings) return <p>Loading…</p>;
+
+  return (
+    <BrowserRouter>
       <Header />
 
-      <div className="app-wrapper">
-      {/* Page heading from sheet */}
-      {settings.PageHeading && (
-        <h1 className="page-heading">{settings.PageHeading}</h1>
-      )}
+      {/* Navigation menu (home + dropped pages) */}
+      <nav className="site-nav">
+        <Link to="/">Home</Link>
+        {pages.map((p) => (
+          <Link key={p.slug} to={`/${p.slug}`}>
+            {p.label}
+          </Link>
+        ))}
+      </nav>
 
-      {/* Optional HTML above the table */}
-      <HTMLBlock html={settings.TopSection} className="top-block" />
+      <Routes>
+        {/* Home route */}
+        <Route
+          path="/"
+          element={
+            <div className="app-wrapper">
+              {settings.PageHeading && (
+                <h1
+                  className="page-heading"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(settings.PageHeading),
+                  }}
+                />
+              )}
 
-      {/* Your camps table */}
-      <CampTable />
+              <HTMLBlock html={settings.TopSection} className="top-block" />
+              <CampTable />
+              <HTMLBlock
+                html={settings.BottomSection}
+                className="bottom-block"
+              />
+            </div>
+          }
+        />
 
-      {/* Optional HTML below the table */}
-      <HTMLBlock html={settings.BottomSection} className="bottom-block" />
-       </div>
-    </>
+        {/* Catch‑all for any static HTML file dropped via SFTP */}
+        <Route path="/:slug" element={<FilePage pages={pages} />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
