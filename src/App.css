@@ -95,3 +95,37 @@ body {
 .register-link:hover {
   text-decoration: underline;
 }
+
+/* ────────────────────────────────
+   Navigation bar for Home + dropped pages
+   ──────────────────────────────── */
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: #f6f6f6;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.site-nav a {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--brand-color, #004d99); /* fall back if no CSS var */
+  text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav a:focus {
+  text-decoration: underline;
+}
+
+/* ────────────────────────────────
+   Dropped‑file iframe container
+   ──────────────────────────────── */
+.page-iframe {
+  width: 100%;
+  height: 80vh;   /* fills most of viewport */
+  border: none;
+  background: #fff;
+}
