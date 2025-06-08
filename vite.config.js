@@ -1,5 +1,7 @@
-import { expect } from 'vitest';
-import * as matchers from '@testing-library/jest-dom/matchers';
+// vite.config.js  ← put this at project root
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// add jest‑dom's custom matchers to Vitest's global expect
-expect.extend(matchers);
+export default defineConfig({
+  plugins: [react()],
+});
