@@ -17,4 +17,18 @@ app.use(
       : path.join(__dirname, 'static-pages')    // local dev folder
   )
 );
+// ➊ paste just after all app.use(...) but **before** app.listen
+function dumpRoutes() {
+  console.log('── Express route stack ──');
+  app._router.stack
+    .filter(l => l.route || l.name === 'router')
+    .forEach((l, i) => {
+      const path = l.route ? l.route.path
+               : (l.regexp && l.regexp.source);
+      console.log(`${i}.`, path);
+    });
+  console.log('─────────────────────────');
+}
+dumpRoutes();        // ← add this line temporarily
+
 app.listen(3000, () => console.log('Server on :3000'));
