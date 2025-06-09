@@ -6,10 +6,8 @@ import express from 'express';
 // Where to read pages from.
 // • In production  ➜  /home/azureuser/static-pages
 // • In local dev   ➜  ./static-pages  (folder at repo root)
-const PAGES_DIR =
-  process.env.NODE_ENV === 'production'
-    ? '/home/azureuser/static-pages'
-    : './static-pages';
+
+const PAGES_DIR = '/home/azureuser/static-pages';
 
 export default function createPagesRouter() {
   const router = express.Router();
