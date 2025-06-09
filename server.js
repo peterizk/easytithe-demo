@@ -17,4 +17,8 @@ app.use(
       : path.join(__dirname, 'static-pages')    // local dev folder
   )
 );
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 app.listen(3000, () => console.log('Server on :3000'));
