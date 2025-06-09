@@ -1,34 +1,25 @@
+// server.js  (project root)
 import express from 'express';
-import createPagesRouter from './src/server/api-pages.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import createPagesRouter from './src/server/api-pages.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
+// 1) JSON API for the menu
 app.use('/api', createPagesRouter());
-app.use(express.static(path.join(__dirname, 'dist')));  // Vite build
-/* NEW: serve dropped HTML files */
-app.use(
-  '/p',
-  express.static(
-    process.env.NODE_ENV === 'production'
-      ? '/home/azureuser/static-pages'          // VM folder
-      : path.join(__dirname, 'static-pages')    // local dev folder
-  )
-);
-// ➊ paste just after all app.use(...) but **before** app.listen
-function dumpRoutes() {
-  console.log('── Express route stack ──');
-  app._router.stack
-    .filter(l => l.route || l.name === 'router')
-    .forEach((l, i) => {
-      const path = l.route ? l.route.path
-               : (l.regexp && l.regexp.source);
-      console.log(`${i}.`, path);
-    });
-  console.log('─────────────────────────');
-}
-dumpRoutes();        // ← add this line temporarily
+
+// 2) React build (vite build → dist/)
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// 3) Dropped HTML files (always production path)
+app.use('/p', express.static('/home/azureuser/static-pages'));
+
+// 4) History‑fallback for React Router
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 
 app.listen(3000, () => console.log('Server on :3000'));
