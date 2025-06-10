@@ -3,30 +3,25 @@ import fs from 'node:fs';
 import path from 'node:path';
 import express from 'express';
 
-// Where to read pages from.
-// • In production  ➜  /home/azureuser/static-pages
-// • In local dev   ➜  ./static-pages  (folder at repo root)
-
+// Always read from the prod folder (we’ll symlink it locally)
 const PAGES_DIR = '/home/azureuser/static-pages';
 
 export default function createPagesRouter() {
   const router = express.Router();
 
-  // Builds a fresh list on *every* request,
-  // so new / deleted files appear without restarting the server.
-  router.get('/pages-list', (_, res) => {
-    const files = fs
+  // Build fresh list on every request
+  router.get('/pages-list', (_req, res) => {
+    const pages = fs
       .readdirSync(PAGES_DIR)
-      .filter((f) => f.toLowerCase().endsWith('.html')) // case‑insensitive
-      .map((f) => {
-        const slug = path.parse(f).name;               // camp-lessons
+      .filter(f => f.toLowerCase().endsWith('.html'))
+      .map(f => {
+        const slug = path.parse(f).name;
         const label = slug
-          .replace(/-/g, ' ')                          // camp lessons
-          .replace(/\b\w/g, (c) => c.toUpperCase());   // Camp Lessons
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, c => c.toUpperCase());
         return { slug, url: `/p/${f}`, label };
       });
-
-    res.json(files);
+    res.json(pages);
   });
 
   return router;
