@@ -10,12 +10,14 @@ export default function HomePage() {
   if (!text.trim())  return <p className="p-4">Content coming soon.</p>;
 
   return (
-    <div className="prose mx-auto p-4">
-      <ReactMarkdown
+ <div className="container">
+    <div className="prose">
+       <ReactMarkdown
         children={text}
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}  /* lets you embed raw HTML if needed */
       />
+    </div>
     </div>
   );
 }

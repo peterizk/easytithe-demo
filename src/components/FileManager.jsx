@@ -45,7 +45,7 @@ export default function FileManager() {
       </div>
 
       {/* Existing files list */}
-      <table className="border-collapse w-full">
+      <table className="border-collapse w-full zebra">
         <thead>
           <tr><th className="border px-2">File</th><th className="border px-2"> </th></tr>
         </thead>
@@ -53,9 +53,9 @@ export default function FileManager() {
           {files.map(f => (
             <tr key={f}>
               <td className="border px-2">{f}</td>
-              <td className="border px-2 text-right">
+              <td className="text-right">
                 <button
-                  className="px-2 py-0.5 bg-red-600 text-white rounded"
+                  className="btn btn-danger"
                   onClick={() => handleDelete(f)}
                 >
                   Delete

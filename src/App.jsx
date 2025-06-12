@@ -23,6 +23,7 @@ import usePageFiles from "./hooks/usePageFiles";
           .replace(/\b\w/g, c => c.toUpperCase())}  {/* title-case */}
           </a>
         ))}
+        <a href="/admin/content" className="ml-4">Admin Login</a>
         </nav>
 
        <Routes>

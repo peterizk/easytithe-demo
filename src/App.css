@@ -129,3 +129,51 @@ body {
   border: none;
   background: #fff;
 }
+
+/* global layout wrappers */
+.container            { max-width: 1040px; margin: 0 auto; padding: 0 1rem; }
+.prose                { font-family: "Montserrat", Arial, sans-serif; line-height: 1.6; }
+
+/* header + nav */
+.app-header           { background:#0c3c68;  color:#fff; }
+.app-header .container{ display:flex; align-items:center; justify-content:space-between; }
+.app-title            { font-size:24px; font-weight:700; margin:0; }
+.site-nav a           { margin-left:1.2rem; color:#fff; text-decoration:none; }
+.site-nav a:hover     { text-decoration:underline; }
+/* give the whole nav strip a dark bg */
+.site-nav           { background:#0c3c68; padding:0.4rem 1rem; }
+
+/* match the title’s blue even when Header stretches full width */
+.app-header .site-nav { background:#0c3c68; }
+/* footer */
+.site-footer          { background:#f4f5f6; font-size:0.8rem; padding:1rem 0; }
+
+/* admin buttons */
+.btn                  { padding:.35rem .75rem; border-radius:4px; cursor:pointer; }
+.btn-primary          { background:#0c6cf4; color:#fff; border:0; }
+.btn-danger           { background:#c73737; color:#fff; border:0; }
+.btn:disabled         { opacity:.4; cursor:not-allowed; }
+
+/* tables */
+table.zebra tbody tr:nth-child(odd){ background:#fafafa; }
+table th, table td    { padding:.4rem .6rem; }
+
+/* toast (simple) */
+.toast                { position:fixed; right:1rem; bottom:1rem; background:#0c6cf4; color:#fff;
+                        padding:.6rem 1rem; border-radius:4px; animation:fadeout 4s forwards; }
+@keyframes fadeout    { 0%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+
+/* Admin cog drop-down ---------------------------------------------------- */
+.admin-menu            { background:#1f2937; color:#fff;
+                         border-radius:4px; box-shadow:0 4px 8px rgba(0,0,0,.15);
+                         padding:0.25rem 0;   /* top/bottom only */
+                         width:auto;          /* shrink to fit text  */
+                         min-width:unset; }   /* ← remove previous 160px */
+
+.admin-menu a          { display:block; white-space:nowrap;
+                         padding:0.4rem 1.25rem; text-decoration:none;
+                         color:#fff; font-size:0.875rem; }
+
+.admin-menu a + a      { border-top:1px solid rgba(255,255,255,.08); } /* thin divider */
+
+.admin-menu a:hover    { background:#374151; }   /* slate hover, keeps contrast */
