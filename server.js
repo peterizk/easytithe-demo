@@ -1,6 +1,6 @@
 // server.js
 import dotenv from 'dotenv';
-dotenv.config({ override: true }); // ensure .env wins
+dotenv.config({ override: true });  // load .env early
 
 import express from 'express';
 import basicAuth from 'express-basic-auth';
@@ -9,10 +9,20 @@ import { fileURLToPath } from 'url';
 import { BlobServiceClient } from '@azure/storage-blob';
 import createPagesRouter from './src/server/api-pages.js';
 
-// Env guard
-['AZURE_STORAGE_CONNECTION_STRING', 'BLOB_CONTAINER_NAME', 'ADMIN_PASS'].forEach(k => {
-  if (!process.env[k]) {
-    console.error(`❌ Missing env var ${k}`);
+// Determine port: CLI arg first, then PORT env var, else default 3000
+let port = 3000;
+const cliArg = process.argv[2];
+if (cliArg && !isNaN(parseInt(cliArg, 10))) {
+  port = parseInt(cliArg, 10);
+} else if (process.env.PORT && !isNaN(parseInt(process.env.PORT, 10))) {
+  port = parseInt(process.env.PORT, 10);
+}
+console.log(`Starting server on port ${port}`);
+
+// Required environment variables
+['AZURE_STORAGE_CONNECTION_STRING', 'BLOB_CONTAINER_NAME', 'ADMIN_PASS'].forEach(key => {
+  if (!process.env[key]) {
+    console.error(`❌ Missing env var ${key}`);
     process.exit(1);
   }
 });
@@ -20,13 +30,12 @@ import createPagesRouter from './src/server/api-pages.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
-// Async init
 async function initServer() {
-  // Azure Blob init
-  const blobSvc = BlobServiceClient.fromConnectionString(
+  // Azure Blob initialization
+  const blobService = BlobServiceClient.fromConnectionString(
     process.env.AZURE_STORAGE_CONNECTION_STRING
   );
-  const container = blobSvc.getContainerClient(
+  const container = blobService.getContainerClient(
     process.env.BLOB_CONTAINER_NAME
   );
   await container.createIfNotExists();
@@ -35,72 +44,65 @@ async function initServer() {
   app.use(express.json());
   app.use(express.text({ type: 'text/*' }));
 
-  // Logout endpoint (public)
+  // Logout endpoint
   app.get('/admin/logout', (_req, res) => {
     res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area"');
     return res.status(401).send('Logged out');
   });
 
-  // Protect admin UI
+  // Protect /admin routes
   app.use('/admin', basicAuth({ users: { editor: process.env.ADMIN_PASS }, challenge: true }));
 
-  // API (file upload, delete, blob CRUD)
+  // API router
   app.use('/api', createPagesRouter());
 
-  // Serve React build
+  // Serve static React build
   app.use(express.static(path.join(__dirname, 'dist')));
 
-  // Utility: list all blob names
-  async function listAllBlobs() {
+  // Helper to list all blobs
+  async function listBlobs() {
     const names = [];
-    for await (const b of container.listBlobsFlat()) {
-      names.push(b.name);
+    for await (const blob of container.listBlobsFlat()) {
+      names.push(blob.name);
     }
     return names;
   }
 
-  // Stream blobs for any extension or slug
-  // Stream blobs for any extension or slug (with debug)
-app.get('/p/:name', async (req, res, next) => {
-  try {
-    const requested = req.params.name;
-    console.log('DEBUG: requested subpage:', requested);
-    const all = await listAllBlobs();
-    console.log('DEBUG: available blobs:', all);
+  // Stream blobs or slug-based files
+  app.get('/p/:name', async (req, res, next) => {
+    try {
+      const requested = req.params.name;
+      const all = await listBlobs();
+      // exact match
+      let match = all.find(n => n === requested);
+      // case-insensitive
+      if (!match) match = all.find(n => n.toLowerCase() === requested.toLowerCase());
+      // slug (basename match)
+      if (!match && !path.extname(requested)) {
+        match = all.find(n => path.parse(n).name.toLowerCase() === requested.toLowerCase());
+      }
+      if (!match) return next();
 
-    // 1) exact match (case-sensitive)
-    let actual = all.find(n => n === requested);
-    // 2) case-insensitive match
-    if (!actual) actual = all.find(n => n.toLowerCase() === requested.toLowerCase());
-    // 3) slug match: match basename without extension
-    if (!actual && !path.extname(requested)) {
-      actual = all.find(n => path.parse(n).name.toLowerCase() === requested.toLowerCase());
+      const client = container.getBlockBlobClient(match);
+      const download = await client.download();
+      res.setHeader('Content-Type', download.contentType || 'application/octet-stream');
+      download.readableStreamBody.pipe(res);
+    } catch (err) {
+      console.error('Error streaming blob:', err);
+      res.status(500).send(err.toString());
     }
-    console.log('DEBUG: matched blob:', actual);
-    if (!actual) {
-      console.log('DEBUG: no blob match, falling through to next');
-      return next();
-    }
-
-    const blobClient = container.getBlockBlobClient(actual);
-    const dl = await blobClient.download();
-    console.log('DEBUG: streaming blob, contentType:', dl.contentType);
-    res.setHeader('Content-Type', dl.contentType || 'application/octet-stream');
-    dl.readableStreamBody.pipe(res);
-  } catch (e) {
-    console.error('Error streaming blob:', e);
-    res.status(500).send(e.toString());
-  }
-});
+  });
 
   // SPA fallback
-  app.use((_, res) => res.sendFile(path.join(__dirname, 'dist', 'index.html')));
+  app.use((_, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
 
-  app.listen(3000, () => console.log('Server listening on :3000'));
+  // Start listening
+  app.listen(port, () => console.log(`Server listening on :${port}`));
 }
 
-// Start the server
 initServer().catch(err => {
-  console.error('Server initialization failed:', err);
+  console.error('Failed to start server:', err);
   process.exit(1);
 });
