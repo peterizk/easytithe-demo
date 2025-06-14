@@ -1,32 +1,45 @@
+// src/components/SettingsCog.jsx
 import { useState, useRef, useEffect } from "react";
 import { Cog } from "lucide-react";
-import { Link } from "react-router-dom";
-import useIsAdmin from "../hooks/useIsAdmin";
+import { useLocation } from "react-router-dom";
 
 export default function SettingsCog() {
   const [open, setOpen] = useState(false);
   const box = useRef(null);
-  const isAdmin = useIsAdmin();
+  const { pathname } = useLocation();
+
+  // Only show the cog on admin routes
+  if (!pathname.startsWith("/admin")) {
+    return null;
+  }
 
   useEffect(() => {
-    const h = e => box.current && !box.current.contains(e.target) && setOpen(false);
-    window.addEventListener("click", h);
-    return () => window.removeEventListener("click", h);
+    function handleClickOutside(event) {
+      if (box.current && !box.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+    window.addEventListener("click", handleClickOutside);
+    return () => window.removeEventListener("click", handleClickOutside);
   }, []);
 
-  if (!isAdmin) return null;
-  
   return (
     <div ref={box} className="absolute top-3 right-3 text-gray-600">
-      <button onClick={() => setOpen(!open)}><Cog /></button>
+      <button
+        onClick={() => setOpen((prev) => !prev)}
+        aria-label="Settings"
+      >
+        <Cog />
+      </button>
+
       {open && (
         <div className="admin-menu absolute right-0 mt-2">
-          <Link className="block px-3 py-1 hover:bg-gray-100" to="/admin/files">
+          <a href="/admin/files" className="block px-3 py-1 hover:bg-gray-100">
             Files
-          </Link>
-          <Link className="block px-3 py-1 hover:bg-gray-100" to="/admin/content">
+          </a>
+          <a href="/admin/content" className="block px-3 py-1 hover:bg-gray-100">
             Content
-          </Link>
+          </a>
         </div>
       )}
     </div>

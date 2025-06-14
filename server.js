@@ -1,74 +1,106 @@
 // server.js
-import 'dotenv/config';
-import { BlobServiceClient } from '@azure/storage-blob';
+import dotenv from 'dotenv';
+dotenv.config({ override: true }); // ensure .env wins
+
 import express from 'express';
 import basicAuth from 'express-basic-auth';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { BlobServiceClient } from '@azure/storage-blob';
 import createPagesRouter from './src/server/api-pages.js';
 
-/* Azure Blob init --------------------------------------------- */
-const blobSvc   = BlobServiceClient.fromConnectionString(
-                    process.env.AZURE_STORAGE_CONNECTION_STRING);
-const container = blobSvc.getContainerClient(
-                    process.env.BLOB_CONTAINER_NAME);
-await container.createIfNotExists();
-
-/* Env guard --------------------------------------------------- */
-['AZURE_STORAGE_CONNECTION_STRING', 'BLOB_CONTAINER_NAME'].forEach(k => {
+// Env guard
+['AZURE_STORAGE_CONNECTION_STRING', 'BLOB_CONTAINER_NAME', 'ADMIN_PASS'].forEach(k => {
   if (!process.env[k]) {
-    console.error(`❌  Missing env var ${k}`);
+    console.error(`❌ Missing env var ${k}`);
     process.exit(1);
   }
 });
 
-/* Paths & App ------------------------------------------------- */
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const app       = express();
+const app = express();
 
+// Async init
+async function initServer() {
+  // Azure Blob init
+  const blobSvc = BlobServiceClient.fromConnectionString(
+    process.env.AZURE_STORAGE_CONNECTION_STRING
+  );
+  const container = blobSvc.getContainerClient(
+    process.env.BLOB_CONTAINER_NAME
+  );
+  await container.createIfNotExists();
 
-/* Global middleware ------------------------------------------- */
-app.use(express.json());
-app.use(express.text({ type: "text/*" }));
+  // Body parsers
+  app.use(express.json());
+  app.use(express.text({ type: 'text/*' }));
 
-/* Auth & routers ---------------------------------------------- */
-app.use('/admin', basicAuth({ users: { editor: process.env.ADMIN_PASS }, challenge: true }));
-app.use('/api',  createPagesRouter());
+  // Logout endpoint (public)
+  app.get('/admin/logout', (_req, res) => {
+    res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area"');
+    return res.status(401).send('Logged out');
+  });
 
-/* React build (prod) ------------------------------------------ */
-app.use(express.static(path.join(__dirname, 'dist')));
+  // Protect admin UI
+  app.use('/admin', basicAuth({ users: { editor: process.env.ADMIN_PASS }, challenge: true }));
 
-/* Pretty slug  /p/camp-lessons → /p/camp-lessons.html */
-app.get('/p/:slug', (req, res, next) => {
-  const raw = req.params.slug;
-  if (!path.extname(raw)) req.url = `/p/${raw}.html`;
-  next();
-});
+  // API (file upload, delete, blob CRUD)
+  app.use('/api', createPagesRouter());
 
-/* Stream files from Blob Storage */
+  // Serve React build
+  app.use(express.static(path.join(__dirname, 'dist')));
+
+  // Utility: list all blob names
+  async function listAllBlobs() {
+    const names = [];
+    for await (const b of container.listBlobsFlat()) {
+      names.push(b.name);
+    }
+    return names;
+  }
+
+  // Stream blobs for any extension or slug
+  // Stream blobs for any extension or slug (with debug)
 app.get('/p/:name', async (req, res, next) => {
   try {
-    const blob = container.getBlockBlobClient(req.params.name);
-    if (!(await blob.exists())) return next();
-    const dl = await blob.download();
+    const requested = req.params.name;
+    console.log('DEBUG: requested subpage:', requested);
+    const all = await listAllBlobs();
+    console.log('DEBUG: available blobs:', all);
+
+    // 1) exact match (case-sensitive)
+    let actual = all.find(n => n === requested);
+    // 2) case-insensitive match
+    if (!actual) actual = all.find(n => n.toLowerCase() === requested.toLowerCase());
+    // 3) slug match: match basename without extension
+    if (!actual && !path.extname(requested)) {
+      actual = all.find(n => path.parse(n).name.toLowerCase() === requested.toLowerCase());
+    }
+    console.log('DEBUG: matched blob:', actual);
+    if (!actual) {
+      console.log('DEBUG: no blob match, falling through to next');
+      return next();
+    }
+
+    const blobClient = container.getBlockBlobClient(actual);
+    const dl = await blobClient.download();
+    console.log('DEBUG: streaming blob, contentType:', dl.contentType);
     res.setHeader('Content-Type', dl.contentType || 'application/octet-stream');
     dl.readableStreamBody.pipe(res);
   } catch (e) {
-    console.error(e);
+    console.error('Error streaming blob:', e);
     res.status(500).send(e.toString());
   }
 });
 
-/* Root-level slug  /camp-lessons → /p/camp-lessons.html */
-app.get('/:slug', (req, res, next) => {
-  if (req.path.startsWith('/api') || req.path.startsWith('/admin')) return next();
-  const raw = req.params.slug;
-  if (!path.extname(raw)) req.url = `/p/${raw}.html`;
-  next();
+  // SPA fallback
+  app.use((_, res) => res.sendFile(path.join(__dirname, 'dist', 'index.html')));
+
+  app.listen(3000, () => console.log('Server listening on :3000'));
+}
+
+// Start the server
+initServer().catch(err => {
+  console.error('Server initialization failed:', err);
+  process.exit(1);
 });
-
-/* SPA fallback ------------------------------------------------ */
-app.use((_, res) => res.sendFile(path.join(__dirname, 'dist', 'index.html')));
-
-/* Start -------------------------------------------------------- */
-app.listen(3000, () => console.log('Server listening on :3000'));

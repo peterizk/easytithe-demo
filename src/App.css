@@ -34,6 +34,19 @@ body {
   background-color: #fff;
 }
 
+.header-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-nav {
+  margin-top: 1rem; /* space between title and nav */
+  display: flex;            /* make the links a flex row */
+  justify-content: flex-start;  /* align them to the left */
+  gap: 1rem; 
+}
+
+
 .app-title {
   font-family: "Playfair Display";
   font-size: 20px;

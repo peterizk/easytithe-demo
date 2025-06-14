@@ -1,13 +1,16 @@
+// src/hooks/useIsAdmin.js
 import { useState, useEffect } from "react";
 
 export default function useIsAdmin() {
-  const [isAdmin, set] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // A HEAD is enough; backend will return 200 if creds are cached, 401 otherwise
-    fetch("/admin/files", { method: "HEAD" })
-      .then(r => set(r.status === 200))
-      .catch(() => set(false));    // network error ⇒ treat as guest
+    fetch("/admin/files", {
+      method: "HEAD",
+      credentials: "include"          // ← include Basic-Auth credentials
+    })
+      .then(r => setIsAdmin(r.status === 200))
+      .catch(() => setIsAdmin(false));
   }, []);
 
   return isAdmin;
