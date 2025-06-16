@@ -10,7 +10,10 @@ dist/
 azurite/
 .env
 .env.local
+local-pages/
+static-pages/
 
+node_modules/
 node_modules
 dist-ssr
 *.local
@@ -25,3 +28,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.zip
