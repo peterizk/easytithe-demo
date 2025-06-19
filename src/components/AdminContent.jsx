@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import ReactMde from "react-mde";
-import "react-mde/lib/styles/css/react-mde-all.css";
+import ReactMde from 'react-mde';
+import 'react-mde/lib/styles/css/react-mde-all.css';
 import useBlobText from "../hooks/useBlobText";
 
 export default function AdminContent() {
@@ -10,12 +10,12 @@ export default function AdminContent() {
 
   useEffect(() => { if (!loading) setValue(text); }, [loading, text]);
 
-  if (loading) return <p className="p-4">Loading…</p>;
+  if (loading) return <p className="page-heading">Loading…</p>;
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
-      <h2 className="text-2xl mb-3">Edit Page Content (Markdown)</h2>
-      <ReactMde
+     <div className="app-wrapper">
+      <h2 className="page-heading">Edit Page Content (Markdown)</h2>
+     <ReactMde
         value={value}
         onChange={setValue}
         selectedTab={tab}
@@ -24,8 +24,7 @@ export default function AdminContent() {
           import("marked").then(({ marked }) => marked.parse(md))
         }
       />
-      <button
-        className="mt-3 px-4 py-1 rounded bg-green-700 text-white"
+      <button className="btn btn-primary"
         onClick={() => save(value)}
       >
         Save
