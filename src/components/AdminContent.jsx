@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import ReactMde from '@javier.alejandro.castro/react-mde';
-import "react-mde/lib/styles/css/react-mde-all.css";
+import ReactMde from 'react-mde';
+import 'react-mde/lib/styles/css/react-mde-all.css';
 import useBlobText from "../hooks/useBlobText";
 
 export default function AdminContent() {
