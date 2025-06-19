@@ -5,7 +5,6 @@ import FileManager    from './components/FileManager';
 import PageDefinition from './components/PageDefinition';
 import HomePage       from './components/HomePage';
 import AdminContent   from './components/AdminContent';
-import SettingsCog    from './components/SettingsCog';
 import usePageFiles   from './hooks/usePageFiles';
 
 export default function App() {
@@ -14,7 +13,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Header pages={pages} />
-      <SettingsCog />
       <Routes>
         <Route path="/admin/files"    element={<FileManager />} />
         <Route path="/admin/settings" element={<PageDefinition />} />
