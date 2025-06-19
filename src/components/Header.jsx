@@ -1,7 +1,16 @@
 // src/components/Header.jsx
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Header({ pages }) {
+  if (!pages || pages.length === 0) {
+    return (
+      <main className="app-wrapper">
+        <p>No pages available yet. Please upload one in Admin.</p>
+      </main>
+    );
+  }
+
   return (
     <header className="app-header">
        <div className="container header-container">

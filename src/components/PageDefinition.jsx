@@ -1,3 +1,3 @@
 export default function PageDefinition() {
-  return <p className="p-4">Site settings moved into Content editor.</p>;
+  return <p className="top-block">Site settings moved into Content editor.</p>;
 }

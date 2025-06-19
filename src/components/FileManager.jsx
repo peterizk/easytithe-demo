@@ -1,3 +1,4 @@
+// src/components/FileManager.jsx
 import { useEffect, useState } from "react";
 
 export default function FileManager() {
@@ -9,7 +10,9 @@ export default function FileManager() {
     const r = await fetch("/api/pages-list");
     setFiles(await r.json());
   }
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    refresh();
+  }, []);
 
   /* upload handler */
   async function handleUpload() {
@@ -24,36 +27,46 @@ export default function FileManager() {
   /* delete handler */
   async function handleDelete(name) {
     if (!window.confirm(`Delete ${name}?`)) return;
-    await fetch(`/api/delete/${encodeURIComponent(name)}`, { method: "DELETE" });
-    await refresh();
+    await fetch(`/api/delete/${encodeURIComponent(name)}`, {
+      method: "DELETE",
+    });
+    refresh();
   }
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h2 className="text-xl mb-2">Manage Files</h2>
+    <div className="app-wrapper">
+      {/* Use your page-heading style for consistency */}
+      <h2 className="page-heading">Manage Files</h2>
 
-      {/* Upload section */}
-      <div className="mb-4">
-        <input type="file" onChange={e => setUploadFile(e.target.files[0])} />
+      {/* Upload section: top-block gives sensible padding */}
+      <div className="top-block">
+        <input
+          type="file"
+          onChange={(e) => setUploadFile(e.target.files[0])}
+        />
         <button
-          className="ml-2 px-3 py-1 bg-blue-700 text-white rounded"
+          className="btn btn-primary"
           onClick={handleUpload}
           disabled={!uploadFile}
+          style={{ marginLeft: "0.5rem" }}  /* small spacing */
         >
           Upload
         </button>
       </div>
 
-      {/* Existing files list */}
-      <table className="border-collapse w-full zebra">
+      {/* File list table uses your camp-table + zebra styles */}
+      <table className="camp-table zebra">
         <thead>
-          <tr><th className="border px-2">File</th><th className="border px-2"> </th></tr>
+          <tr>
+            <th>File</th>
+            <th></th>
+          </tr>
         </thead>
         <tbody>
-          {files.map(f => (
+          {files.map((f) => (
             <tr key={f}>
-              <td className="border px-2">{f}</td>
-              <td className="text-right">
+              <td>{f}</td>
+              <td style={{ textAlign: "right" }}>
                 <button
                   className="btn btn-danger"
                   onClick={() => handleDelete(f)}
@@ -63,10 +76,13 @@ export default function FileManager() {
               </td>
             </tr>
           ))}
+
           {!files.length && (
-            <tr><td colSpan="2" className="border px-2 py-4 text-center text-sm text-gray-500">
-              No files uploaded.
-            </td></tr>
+            <tr>
+              <td colSpan="2" style={{ textAlign: "center", padding: "1rem 0" }}>
+                No files uploaded.
+              </td>
+            </tr>
           )}
         </tbody>
       </table>

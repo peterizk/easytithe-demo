@@ -1,5 +1,5 @@
 // src/App.jsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Header         from './components/Header';
 import FileManager    from './components/FileManager';
 import PageDefinition from './components/PageDefinition';
@@ -12,7 +12,7 @@ export default function App() {
   const pages = usePageFiles();
 
   return (
-    <BrowserRouter>
+    <div className="app-wrapper">
       <Header pages={pages} />
       <SettingsCog />
       <Routes>
@@ -21,6 +21,6 @@ export default function App() {
         <Route path="/admin/content"  element={<AdminContent />} />
         <Route path="/"               element={<HomePage pages={pages} />} />
       </Routes>
-    </BrowserRouter>
+    </div>
   );
 }

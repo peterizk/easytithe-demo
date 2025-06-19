@@ -29,6 +29,7 @@ body {
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
 .app-header {
+  position: relative;
   text-align: center;
   padding: 1rem 0;       /* fixed: two values, vertical 1rem, horizontal 0 */
   background-color: #fff;
@@ -190,3 +191,21 @@ table th, table td    { padding:.4rem .6rem; }
 .admin-menu a + a      { border-top:1px solid rgba(255,255,255,.08); } /* thin divider */
 
 .admin-menu a:hover    { background:#374151; }   /* slate hover, keeps contrast */
+/* ── Settings cog (top-right) ────────────────────────────────────────────── */
+.settings-cog {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+}
+
+.settings-cog button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.settings-cog button:hover {
+  opacity: 0.8;
+}

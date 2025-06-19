@@ -14,8 +14,8 @@ export default function SettingsCog() {
   }
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (box.current && !box.current.contains(event.target)) {
+    function handleClickOutside(evt) {
+      if (box.current && !box.current.contains(evt.target)) {
         setOpen(false);
       }
     }
@@ -24,7 +24,7 @@ export default function SettingsCog() {
   }, []);
 
   return (
-    <div ref={box} className="absolute top-3 right-3 text-gray-600">
+    <div ref={box} className="settings-cog">
       <button
         onClick={() => setOpen((prev) => !prev)}
         aria-label="Settings"
@@ -33,13 +33,9 @@ export default function SettingsCog() {
       </button>
 
       {open && (
-        <div className="admin-menu absolute right-0 mt-2">
-          <a href="/admin/files" className="block px-3 py-1 hover:bg-gray-100">
-            Files
-          </a>
-          <a href="/admin/content" className="block px-3 py-1 hover:bg-gray-100">
-            Content
-          </a>
+        <div className="admin-menu">
+          <a href="/admin/files">Files</a>
+          <a href="/admin/content">Content</a>
         </div>
       )}
     </div>

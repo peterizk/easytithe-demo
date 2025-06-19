@@ -1,3 +1,4 @@
+//src/components/AdminContent.jsx
 import { useState, useEffect } from "react";
 import ReactMde from 'react-mde';
 import 'react-mde/lib/styles/css/react-mde-all.css';
@@ -10,11 +11,11 @@ export default function AdminContent() {
 
   useEffect(() => { if (!loading) setValue(text); }, [loading, text]);
 
-  if (loading) return <p className="p-4">Loading…</p>;
+  if (loading) return <p className="top-block">Loading…</p>;
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
-      <h2 className="text-2xl mb-3">Edit Page Content (Markdown)</h2>
+    <div className="app-wrapper">
+      <h2 className="page-heading">Edit Page Content (Markdown)</h2>
       <ReactMde
         value={value}
         onChange={setValue}
@@ -25,7 +26,7 @@ export default function AdminContent() {
         }
       />
       <button
-        className="mt-3 px-4 py-1 rounded bg-green-700 text-white"
+        className="btn btn-primary"
         onClick={() => save(value)}
       >
         Save
