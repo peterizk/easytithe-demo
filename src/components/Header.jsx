@@ -26,9 +26,9 @@ export default function Header({ pages }) {
               </a>
             );
           })}
-
-          <a href="/admin/files">Admin</a>
+        <div className="site-nav-spacer" />
+          <a href="/admin/files">Admin</a>  
         </nav>
-    </header>
+      </header>
   );
 }
