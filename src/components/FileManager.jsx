@@ -1,17 +1,39 @@
+// src/components/FileManager.jsx
 import { useEffect, useState } from "react";
 
 export default function FileManager() {
   const [files, setFiles] = useState([]);
+  const [selected, setSelected] = useState([]);
   const [uploadFile, setUploadFile] = useState(null);
 
-  /* fetch list on mount + after any change */
+  // fetch list and current selection
   async function refresh() {
-    const r = await fetch("/api/pages-list");
-    setFiles(await r.json());
-  }
-  useEffect(() => { refresh(); }, []);
+    const [listResp, selResp] = await Promise.all([
+      fetch("/api/pages-list"),
+      fetch("/api/blob/selected-pages.json"),
+    ]);
 
-  /* upload handler */
+    const files = await listResp.json();
+
+    let sel = [];
+    if (selResp.ok) {
+      try {
+        const data = await selResp.json();
+        sel = Array.isArray(data) ? data : [];
+      } catch {
+        sel = [];
+      }
+    }
+
+    setFiles(files);
+    setSelected(sel);
+  }
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  // upload handler
   async function handleUpload() {
     if (!uploadFile) return;
     const fd = new FormData();
@@ -21,7 +43,24 @@ export default function FileManager() {
     await refresh();
   }
 
-  /* delete handler */
+  // toggle inclusion in nav
+  function toggleSelect(name) {
+    setSelected((prev) =>
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
+    );
+  }
+
+  // save nav manifest
+  async function saveSelection() {
+    await fetch("/api/blob/selected-pages.json", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(selected),
+    });
+    alert("Navigation updated");
+  }
+
+  // delete handler
   async function handleDelete(name) {
     if (!window.confirm(`Delete ${name}?`)) return;
     await fetch(`/api/delete/${encodeURIComponent(name)}`, { method: "DELETE" });
@@ -29,14 +68,15 @@ export default function FileManager() {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h2 className="text-xl mb-2">Manage Files</h2>
-
-      {/* Upload section */}
-      <div className="mb-4">
-        <input type="file" onChange={e => setUploadFile(e.target.files[0])} />
+    <div className="app-wrapper">
+      <h2 className="page-heading">Manage Files</h2>
+      <div className="top-block">
+        <input
+          type="file"
+          onChange={(e) => setUploadFile(e.target.files[0])}
+        />
         <button
-          className="ml-2 px-3 py-1 bg-blue-700 text-white rounded"
+          className="btn btn-primary"
           onClick={handleUpload}
           disabled={!uploadFile}
         >
@@ -44,16 +84,26 @@ export default function FileManager() {
         </button>
       </div>
 
-      {/* Existing files list */}
-      <table className="border-collapse w-full zebra">
+      <table className="camp-table zebra">
         <thead>
-          <tr><th className="border px-2">File</th><th className="border px-2"> </th></tr>
+          <tr>
+            <th>Show?</th>
+            <th>File</th>
+            <th></th>
+          </tr>
         </thead>
         <tbody>
-          {files.map(f => (
+          {files.map((f) => (
             <tr key={f}>
-              <td className="border px-2">{f}</td>
-              <td className="text-right">
+              <td>
+                <input
+                  type="checkbox"
+                  checked={selected.includes(f)}
+                  onChange={() => toggleSelect(f)}
+                />
+              </td>
+              <td>{f}</td>
+              <td style={{ textAlign: "right" }}>
                 <button
                   className="btn btn-danger"
                   onClick={() => handleDelete(f)}
@@ -64,12 +114,20 @@ export default function FileManager() {
             </tr>
           ))}
           {!files.length && (
-            <tr><td colSpan="2" className="border px-2 py-4 text-center text-sm text-gray-500">
-              No files uploaded.
-            </td></tr>
+            <tr>
+              <td colSpan="3" style={{ textAlign: "center", padding: "1rem 0" }}>
+                No files uploaded.
+              </td>
+            </tr>
           )}
         </tbody>
       </table>
+
+      <div style={{ marginTop: "1rem" }}>
+        <button className="btn btn-primary" onClick={saveSelection}>
+          Save Navigation
+        </button>
+      </div>
     </div>
   );
 }

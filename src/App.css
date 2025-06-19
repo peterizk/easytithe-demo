@@ -1,60 +1,57 @@
-/* src/styles/app.css */
+/* src/App.css */
 
 /* ── Variables ───────────────────────────────────────────────────────────── */
 :root {
-  --brand-color:      rgb(217, 22, 22);   /* from stmarkchicago.org */
+  --brand-color:      rgb(217, 22, 22);
   --bg-color:         #fdfdfd;
   --text-color:       #222;
-  --table-border:     #d9d9d9;
+  --table-border:     #222;
+  --nav-color:        #21048c; 
 }
 
-/* ── Global resets & body ───────────────────────────────────────────────── */
+/* ── Reset & Base ────────────────────────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: "Open Sans", arial, sans-serif;
+  font-family: "Open Sans", Arial, sans-serif;
   background: var(--bg-color);
   color: var(--text-color);
 }
 
-/* ── App wrapper ───────────────────────────────────────────────────────── */
+/* ── Layout Wrappers ─────────────────────────────────────────────────────── */
+.container {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 .app-wrapper {
   max-width: 900px;
   margin: 0 auto;
   padding: 2rem 1.25rem;
 }
 
-/* ── Header ──────────────────────────────────────────────────────────────── */
+/* ── Header + Nav ────────────────────────────────────────────────────────── */
 .app-header {
-  text-align: center;
-  padding: 1rem 0;       /* fixed: two values, vertical 1rem, horizontal 0 */
+  position: relative;
   background-color: #fff;
+  padding: 1rem 0;
 }
 
 .header-container {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-
-.header-nav {
-  margin-top: 1rem; /* space between title and nav */
-  display: flex;            /* make the links a flex row */
-  justify-content: flex-start;  /* align them to the left */
-  gap: 1rem; 
-}
-
 
 .app-title {
-  font-family: "Playfair Display";
-  font-size: 20px;
-  font-weight: 400;
-  text-transform: none;
-  color: var(--text-color);
-  letter-spacing: normal;
-  line-height: normal;
+  font-family: "Playfair Display", serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--brand-color);
   text-decoration: none;
 }
 
@@ -63,15 +60,58 @@ body {
   text-decoration: underline;
 }
 
-/* ── Page Heading ───────────────────────────────────────────────────────── */
+.site-nav {
+  display: flex;
+  justify-content: flex-start;
+  background: #f6f6f6;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  margin-top: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.site-nav a {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav a:focus {
+  text-decoration: underline;
+}
+
+/* ── Button-style nav links ───────────────────────────────────────────────── */
+.site-nav a {
+  display: inline-block;                     /* lets us add padding & borders */
+  padding: 0.5rem 1rem;                      /* space around the text */
+  margin-right: 0.5rem;                      /* small gap between buttons */
+  color: var(--nav-color);                 /* your primary accent color */
+  background: #fff;                          /* white background */
+  border-radius: 4px;                        /* rounded corners */
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.site-nav a:hover,
+.site-nav a:focus {
+  background: var(--nav-color);            /* fill with accent on hover */
+  color: #fff;                               /* white text on hover */
+  border-color: var(--nav-color);
+}
+
+
+/* ── Page Headings & Blocks ─────────────────────────────────────────────── */
 .page-heading {
   text-align: center;
   font-size: 2.5rem;
   margin: 1.5rem 0;
-  color: var(--text-color);
 }
 
-/* ── Content Blocks ─────────────────────────────────────────────────────── */
 .top-block,
 .bottom-block {
   max-width: 800px;
@@ -79,7 +119,7 @@ body {
   line-height: 1.6;
 }
 
-/* ── Table Styles ───────────────────────────────────────────────────────── */
+/* ── Tables ──────────────────────────────────────────────────────────────── */
 .camp-table {
   width: 100%;
   border-collapse: collapse;
@@ -91,14 +131,17 @@ body {
 .camp-table td {
   border: 1px solid var(--table-border);
   padding: 0.6rem 0.8rem;
-  text-align: left;
 }
 
 .camp-table thead {
   background: #f0f6ff;
 }
 
-/* ── Register Link ──────────────────────────────────────────────────────── */
+table.zebra tbody tr:nth-child(odd) {
+  background: #fafafa;
+}
+
+/* ── Links & Buttons ────────────────────────────────────────────────────── */
 .register-link {
   color: var(--brand-color);
   font-weight: 600;
@@ -109,84 +152,94 @@ body {
   text-decoration: underline;
 }
 
-/* ────────────────────────────────
-   Navigation bar for Home + dropped pages
-   ──────────────────────────────── */
-.site-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  padding: 0.75rem 1.25rem;
-  background: #f6f6f6;
-  border-bottom: 1px solid #e0e0e0;
+.btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
 }
 
-.site-nav a {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--brand-color, #004d99); /* fall back if no CSS var */
-  text-decoration: none;
+.btn-primary {
+  background: #0c6cf4;
+  color: #fff;
 }
 
-.site-nav a:hover,
-.site-nav a:focus {
-  text-decoration: underline;
+.btn-danger {
+  background: #c73737;
+  color: #fff;
 }
 
-/* ────────────────────────────────
-   Dropped‑file iframe container
-   ──────────────────────────────── */
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Misc ───────────────────────────────────────────────────────────────── */
 .page-iframe {
   width: 100%;
-  height: 80vh;   /* fills most of viewport */
+  height: 80vh;
   border: none;
   background: #fff;
 }
 
-/* global layout wrappers */
-.container            { max-width: 1040px; margin: 0 auto; padding: 0 1rem; }
-.prose                { font-family: "Montserrat", Arial, sans-serif; line-height: 1.6; }
+.prose {
+  font-family: "Montserrat", Arial, sans-serif;
+  line-height: 1.6;
+}
 
-/* header + nav */
-.app-header           { background:#0c3c68;  color:#fff; }
-.app-header .container{ display:flex; align-items:center; justify-content:space-between; }
-.app-title            { font-size:24px; font-weight:700; margin:0; }
-.site-nav a           { margin-left:1.2rem; color:#fff; text-decoration:none; }
-.site-nav a:hover     { text-decoration:underline; }
-/* give the whole nav strip a dark bg */
-.site-nav           { background:#0c3c68; padding:0.4rem 1rem; }
+.site-footer {
+  background: #f4f5f6;
+  font-size: 0.8rem;
+  padding: 1rem 0;
+}
 
-/* match the title’s blue even when Header stretches full width */
-.app-header .site-nav { background:#0c3c68; }
-/* footer */
-.site-footer          { background:#f4f5f6; font-size:0.8rem; padding:1rem 0; }
+/* ── Admin Cog Dropdown ─────────────────────────────────────────────────── */
+.settings-cog {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  cursor: pointer;
+}
 
-/* admin buttons */
-.btn                  { padding:.35rem .75rem; border-radius:4px; cursor:pointer; }
-.btn-primary          { background:#0c6cf4; color:#fff; border:0; }
-.btn-danger           { background:#c73737; color:#fff; border:0; }
-.btn:disabled         { opacity:.4; cursor:not-allowed; }
+.admin-menu {
+  background: #1f2937;
+  color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  padding: 0.25rem 0;
+}
 
-/* tables */
-table.zebra tbody tr:nth-child(odd){ background:#fafafa; }
-table th, table td    { padding:.4rem .6rem; }
+.admin-menu a {
+  display: block;
+  white-space: nowrap;
+  padding: 0.4rem 1.25rem;
+  text-decoration: none;
+  color: #fff;
+  font-size: 0.875rem;
+}
 
-/* toast (simple) */
-.toast                { position:fixed; right:1rem; bottom:1rem; background:#0c6cf4; color:#fff;
-                        padding:.6rem 1rem; border-radius:4px; animation:fadeout 4s forwards; }
-@keyframes fadeout    { 0%{opacity:1} 80%{opacity:1} 100%{opacity:0} }
+.admin-menu a + a {
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
 
-/* Admin cog drop-down ---------------------------------------------------- */
-.admin-menu            { background:#1f2937; color:#fff;
-                         border-radius:4px; box-shadow:0 4px 8px rgba(0,0,0,.15);
-                         padding:0.25rem 0;   /* top/bottom only */
-                         width:auto;          /* shrink to fit text  */
-                         min-width:unset; }   /* ← remove previous 160px */
+.admin-menu a:hover {
+  background: #374151;
+}
 
-.admin-menu a          { display:block; white-space:nowrap;
-                         padding:0.4rem 1.25rem; text-decoration:none;
-                         color:#fff; font-size:0.875rem; }
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  background: #0c6cf4;
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  animation: fadeout 4s forwards;
+}
 
-.admin-menu a + a      { border-top:1px solid rgba(255,255,255,.08); } /* thin divider */
-
-.admin-menu a:hover    { background:#374151; }   /* slate hover, keeps contrast */
+@keyframes fadeout {
+  0%   { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}

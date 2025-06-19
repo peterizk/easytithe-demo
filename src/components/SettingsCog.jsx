@@ -24,7 +24,7 @@ export default function SettingsCog() {
   }, []);
 
   return (
-    <div ref={box} className="absolute top-3 right-3 text-gray-600">
+    <div ref={box} className="settings-cog">
       <button
         onClick={() => setOpen((prev) => !prev)}
         aria-label="Settings"
@@ -33,7 +33,7 @@ export default function SettingsCog() {
       </button>
 
       {open && (
-        <div className="admin-menu absolute right-0 mt-2">
+        <div className="admin-menu">
           <a href="/admin/files" className="block px-3 py-1 hover:bg-gray-100">
             Files
           </a>
