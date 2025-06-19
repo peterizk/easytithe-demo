@@ -33,9 +33,11 @@ async function initServer() {
     process.env.BLOB_CONTAINER_NAME
   );
   await container.createIfNotExists();
-
+  
   app.use(express.json());
   app.use(express.text({ type: 'text/*' }));
+
+  app.use('/api', createPagesRouter());
 
   app.get('/admin/logout', (_req, res) => {
     res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area"');
@@ -44,7 +46,6 @@ async function initServer() {
 
   app.use('/admin', basicAuth({ users: { editor: process.env.ADMIN_PASS }, challenge: true }));
 
-  app.use('/api', createPagesRouter());
   app.use(express.static(path.join(__dirname, 'dist')));
 
   app.get('/p/:name', async (req, res, next) => {

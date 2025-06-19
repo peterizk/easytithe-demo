@@ -1,26 +1,43 @@
-import { useState, useEffect } from "react";
+// src/hooks/useBlobText.js
+import { useState, useEffect } from 'react';
 
-export default function useBlobText(blobName) {
-  const [text, setText] = useState("");
-  const [loading, setL] = useState(true);
-  const [error, setErr] = useState(null);
+export default function useBlobText(name) {
+  const [text, setText] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch(`/api/blob/${blobName}`)
-      .then(r => r.ok ? r.text() : Promise.reject(r.status))
-      .then(t => { setText(t); setL(false); })
-      .catch(e => { setErr(e); setL(false); });
-  }, [blobName]);
-
-  async function save(next) {
-    const r = await fetch(`/api/blob/${blobName}`, {
-      method: "PUT",
-      headers: { "Content-Type": "text/markdown" },
-      body: next
+  async function save(value) {
+    await fetch(`/api/blob/${name}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'text/plain' },
+      body: value,              // raw markdown string
     });
-    if (!r.ok) throw new Error(`Save failed ${r.status}`);
-    setText(next);
   }
 
-  return { text, loading, error, save };
+  useEffect(() => {
+    let isMounted = true;
+    async function load() {
+      try {
+        const res = await fetch(`/api/blob/${name}`);
+        let data;
+        if (res.status === 404) {
+          data = '';
+        } else if (res.ok) {
+          data = await res.text();
+        } else {
+          console.error(`Error fetching blob: ${res.statusText}`);
+          data = '';
+        }
+        if (isMounted) setText(data);
+      } catch (err) {
+        console.error('Fetch error:', err);
+        if (isMounted) setText('');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    load();
+    return () => { isMounted = false; };
+  }, [name]);
+
+  return { text, loading, save };
 }

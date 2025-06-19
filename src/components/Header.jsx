@@ -21,7 +21,7 @@ export default function Header({ pages }) {
               .replace(/\b\w/g, (c) => c.toUpperCase()); // title-case
 
             return (
-              <a key={name} href={`/p/${name}`}>
+              <a key={name} href={`/${name}`}>
                 {label}
               </a>
             );
