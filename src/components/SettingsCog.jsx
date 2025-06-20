@@ -1,6 +1,6 @@
 // src/components/SettingsCog.jsx
 import { useState, useRef, useEffect } from "react";
-import { Cog } from "lucide-react";
+import Cog from 'lucide-react/dist/esm/icons/cog.js';
 import { useLocation } from "react-router-dom";
 
 export default function SettingsCog() {
